@@ -38,6 +38,7 @@ const expectAllSorted = {
 
 for (const field of ['scripts', 'betterScripts']) {
   test(`${field} when npm-run-all is NOT a dev dependency`, macro.sortObject, {
+    options: { sortScripts: true },
     value: { [field]: fixture },
     expect: { [field]: expectAllSorted },
   })
@@ -46,6 +47,7 @@ for (const field of ['scripts', 'betterScripts']) {
     `${field} when npm-run-all IS a dev dependency, but is NOT used in scripts`,
     macro.sortObject,
     {
+      options: { sortScripts: true },
       value: {
         [field]: { z: 'z', a: 'a' },
         devDependencies: { 'npm-run-all': '^1.0.0' },
@@ -65,7 +67,9 @@ function sortScriptsWithNpmRunAll(script) {
     devDependencies: { 'npm-run-all': '^1.0.0' },
   }
 
-  return Object.keys(sortPackageJson(packageJson).scripts)
+  return Object.keys(
+    sortPackageJson(packageJson, { sortScripts: true }).scripts,
+  )
 }
 function sortScriptsWithNpmRunAll2(script) {
   const packageJson = {
@@ -73,7 +77,9 @@ function sortScriptsWithNpmRunAll2(script) {
     devDependencies: { 'npm-run-all2': '^1.0.0' },
   }
 
-  return Object.keys(sortPackageJson(packageJson).scripts)
+  return Object.keys(
+    sortPackageJson(packageJson, { sortScripts: true }).scripts,
+  )
 }
 
 const sortedScripts = ['a', 'maybeRunS', 'z']
@@ -125,10 +131,12 @@ for (const { script, expected } of [
 
 for (const field of ['scripts', 'betterScripts']) {
   test(`${field} when npm-run-all2 is not a dev dependency`, macro.sortObject, {
+    options: { sortScripts: true },
     value: { [field]: fixture },
     expect: { [field]: expectAllSorted },
   })
   test(`${field} when npm-run-all2 is a dev dependency`, macro.sortObject, {
+    options: { sortScripts: true },
     value: {
       [field]: fixture,
       devDependencies: { 'npm-run-all2': '^1.0.0' },
@@ -155,6 +163,7 @@ for (const field of ['scripts', 'betterScripts']) {
     `${field} does not sort pre/post scripts with colon together`,
     macro.sortObject,
     {
+      options: { sortScripts: true },
       value: {
         [field]: {
           prebuild: 'run-s prebuild:*',
@@ -202,6 +211,7 @@ for (const field of ['scripts', 'betterScripts']) {
     `${field} sort pre/post scripts together with base script independent of colon in name`,
     macro.sortObject,
     {
+      options: { sortScripts: true },
       value: {
         [field]: {
           'pretest:es-check': 'echo',
@@ -235,7 +245,7 @@ test('scripts: group base and colon scripts together, do not split with unrelate
       'test-coverage': 'c8 node --run test',
     },
   }
-  const sorted = sortPackageJson(input)
+  const sorted = sortPackageJson(input, { sortScripts: true })
   t.deepEqual(Object.keys(sorted.scripts), [
     'test',
     'test:a',
@@ -258,7 +268,7 @@ test('scripts: handles names starting with colon and double colons', (t) => {
       'test::smoke': 'echo',
     },
   }
-  const sorted = sortPackageJson(input)
+  const sorted = sortPackageJson(input, { sortScripts: true })
   t.deepEqual(Object.keys(sorted.scripts), [
     '::delta',
     ':alpha',
@@ -292,7 +302,7 @@ test('scripts: group scripts with multiple colons', (t) => {
       'test-coverage': 'c8 node --run test',
     },
   }
-  const sorted = sortPackageJson(input)
+  const sorted = sortPackageJson(input, { sortScripts: true })
   t.deepEqual(Object.keys(sorted.scripts), [
     'test',
     'pretest:a',
@@ -336,7 +346,7 @@ test('scripts: nested production and format variants are grouped and sorted', (t
       'test:production:mjs-coverage': 'echo',
     },
   }
-  const sorted = sortPackageJson(input)
+  const sorted = sortPackageJson(input, { sortScripts: true })
   t.deepEqual(Object.keys(sorted.scripts), [
     'test',
     'test:a',

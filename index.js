@@ -569,6 +569,19 @@ const overFields = pipe(
     .map(({ key, over }) => (over ? overProperty(key, over) : undefined))
     .filter(Boolean),
 )
+const overFieldsWithoutScripts = pipe(
+  fields
+    .map(({ key, over }) => {
+      if (!over) {
+        return undefined
+      }
+      if (key === 'scripts' || key === 'betterScripts') {
+        return undefined
+      }
+      return overProperty(key, over)
+    })
+    .filter(Boolean),
+)
 
 function editStringJSON(json, over) {
   if (typeof json === 'string') {
@@ -590,6 +603,11 @@ function editStringJSON(json, over) {
 }
 
 function sortPackageJson(jsonIsh, options = {}) {
+  const shouldSortScripts = options.sortScripts ?? false
+  const overFieldsForOptions = shouldSortScripts
+    ? overFields
+    : overFieldsWithoutScripts
+
   return editStringJSON(
     jsonIsh,
     onObject((json) => {
@@ -609,7 +627,7 @@ function sortPackageJson(jsonIsh, options = {}) {
         ]
       }
 
-      return overFields(sortObjectKeys(json, sortOrder), json)
+      return overFieldsForOptions(sortObjectKeys(json, sortOrder), json)
     }),
   )
 }

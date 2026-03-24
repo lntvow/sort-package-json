@@ -1,6 +1,6 @@
 {
-  "name": "sort-package-json",
-  "version": "0.0.0-development",
+  "name": "@lntvow/sort-package-json",
+  "version": "0.0.1",
   "description": "Sort an Object or package.json based on the well-known package.json keys",
   "keywords": [
     "keys",
@@ -48,7 +48,8 @@
     "semantic-release": "semantic-release",
     "test": "ava && tstyche",
     "test-coverage": "c8 npm run test",
-    "update-snapshots": "ava --update-snapshots"
+    "update-snapshots": "ava --update-snapshots",
+    "release": "git add . && bumpp package.json --all --no-tag --no-print-commits --no--push"
   },
   "commitlint": {
     "extends": [
@@ -87,6 +88,7 @@
     "@commitlint/config-conventional": "^20.0.0",
     "@eslint/js": "^9.39.1",
     "ava": "^6.4.1",
+    "bumpp": "^11.0.1",
     "c8": "^10.1.3",
     "dot-prop": "^10.1.0",
     "esbuild": "^0.27.0",

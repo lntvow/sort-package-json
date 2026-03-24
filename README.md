@@ -1,3 +1,10 @@
+> Fork Notice
+>
+> This package is a fork of [keithamus/sort-package-json](https://github.com/keithamus/sort-package-json).
+> The original author attribution and project content are preserved.
+> The fork introduces one behavioral change only: by default, scripts and
+> betterScripts are not sorted. Pass --sort-scripts to enable scripts sorting.
+
 # Sort Package.json
 
 [![Build Status][github_actions_badge]][github_actions_link]
@@ -99,6 +106,14 @@ To read from `stdin` and output the result to `stdout` use the `--stdin` flag.
 $ cat package.json | sort-package-json --stdin
 ```
 
+#### `--sort-scripts` flag
+
+By default, CLI keeps `scripts` and `betterScripts` key order unchanged while sorting the rest of the file. Use `--sort-scripts` to enable sorting for those fields.
+
+```bash
+$ sort-package-json package.json --sort-scripts
+```
+
 This can, for instance, be used to generate a diff before changing `package.json`.
 
 ```bash
@@ -195,6 +210,19 @@ const sorted = sortPackageJson(packageJsonObject, {
 console.log(Object.keys(sorted))
 
 // -> [ 'dependencies', 'name', 'version' ]
+```
+
+#### options.sortScripts
+
+Type: `boolean`\
+Default: `false`
+
+Controls whether `scripts` and `betterScripts` are sorted.
+
+```js
+const sorted = sortPackageJson(packageJsonObject, {
+  sortScripts: false,
+})
 ```
 
 ## Related tools

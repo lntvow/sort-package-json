@@ -1,0 +1,42 @@
+name: publish-npm
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'package.json'
+
+permissions:
+  id-token: write # Required for OIDC
+  contents: read
+
+jobs:
+  publish-npm:
+    if: "${{ github.event_name == 'workflow_dispatch' || startsWith(github.event.head_commit.message, 'chore: release v') }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
+      - name: Set Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+          cache: 'pnpm'
+
+      - run: pnpm install
+      # - run: pnpm lint
+      - run: pnpm build
+
+      # Ensure npm 11.5.1 or later is installed
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      - run: pnpm publish --access public
