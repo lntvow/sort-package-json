@@ -48,3 +48,41 @@ test('options.sortOrder with private key', macro.sortObject, {
   expect: keysToObject(['_z', 'name', 'a', 'z', '_a']),
   message: 'options.sortOrder should work with private keys`',
 })
+
+test('options.sortScripts=false', macro.sortObject, {
+  options: {
+    sortScripts: false,
+  },
+  value: {
+    scripts: {
+      z: 'echo z',
+      a: 'echo a',
+    },
+  },
+  expect: {
+    scripts: {
+      z: 'echo z',
+      a: 'echo a',
+    },
+  },
+  message: 'Should keep scripts order when `options.sortScripts` is false',
+})
+
+test('options.sortScripts=true', macro.sortObject, {
+  options: {
+    sortScripts: true,
+  },
+  value: {
+    scripts: {
+      z: 'echo z',
+      a: 'echo a',
+    },
+  },
+  expect: {
+    scripts: {
+      a: 'echo a',
+      z: 'echo z',
+    },
+  },
+  message: 'Should sort scripts when `options.sortScripts` is true',
+})

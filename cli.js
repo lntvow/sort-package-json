@@ -24,6 +24,7 @@ If file/glob is omitted, './package.json' file will be processed.
   -q, --quiet   Don't output success messages
   -h, --help    Display this help
   -i, --ignore  An array of glob patterns to ignore
+  --sort-scripts Sort scripts and betterScripts fields
   -v, --version Display the package version
   --stdin       Read package.json from stdin
   `,
@@ -42,6 +43,7 @@ function parseCliArguments() {
         multiple: true,
         default: ['node_modules/**'],
       },
+      'sort-scripts': { type: 'boolean', default: false },
       version: { type: 'boolean', short: 'v', default: false },
       help: { type: 'boolean', short: 'h', default: false },
     },
@@ -56,9 +58,9 @@ function parseCliArguments() {
   return { options, patterns }
 }
 
-async function sortPackageJsonFile(file, reporter, isCheck) {
+async function sortPackageJsonFile(file, reporter, isCheck, shouldSortScripts) {
   const original = await fs.readFile(file, 'utf8')
-  const sorted = sortPackageJson(original)
+  const sorted = sortPackageJson(original, { sortScripts: shouldSortScripts })
   if (sorted === original) {
     return reporter.reportNotChanged(file)
   }
@@ -71,16 +73,16 @@ async function sortPackageJsonFile(file, reporter, isCheck) {
 }
 
 async function sortPackageJsonFiles(patterns, { ignore, ...options }) {
-  const files = await glob(patterns, { ignore })
+  const files = (await glob(patterns, { ignore })).toSorted()
 
   const reporter = new Reporter(options)
-  const { isCheck } = options
+  const { isCheck, shouldSortScripts } = options
 
   for (const file of files) {
     reporter.reportFound(file)
 
     try {
-      await sortPackageJsonFile(file, reporter, isCheck)
+      await sortPackageJsonFile(file, reporter, isCheck, shouldSortScripts)
     } catch (error) {
       reporter.reportFailed(file, error)
     }
@@ -89,9 +91,11 @@ async function sortPackageJsonFiles(patterns, { ignore, ...options }) {
   reporter.printSummary()
 }
 
-async function sortPackageJsonFromStdin() {
+async function sortPackageJsonFromStdin(shouldSortScripts) {
   process.stdout.write(
-    sortPackageJson(await streamConsumers.text(process.stdin)),
+    sortPackageJson(await streamConsumers.text(process.stdin), {
+      sortScripts: shouldSortScripts,
+    }),
   )
 }
 
@@ -120,12 +124,13 @@ async function run() {
   }
 
   if (options.stdin) {
-    return sortPackageJsonFromStdin()
+    return sortPackageJsonFromStdin(options['sort-scripts'])
   }
 
   await sortPackageJsonFiles(patterns, {
     ignore: options.ignore,
     isCheck: options.check,
+    shouldSortScripts: options['sort-scripts'],
     shouldBeQuiet: options.quiet,
   })
 }

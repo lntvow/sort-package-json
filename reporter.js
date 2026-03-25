@@ -13,6 +13,7 @@ class Reporter {
       failedFilesCount: 0,
       wellSortedFilesCount: 0,
       changedFilesCount: 0,
+      changedFiles: [],
     }
 
     this.#logger = options.shouldBeQuiet
@@ -40,7 +41,12 @@ class Reporter {
 
   reportChanged(file) {
     this.#status.changedFilesCount++
-    this.#logger.log(this.#options.isCheck ? `${file}` : `${file} is sorted!`)
+    if (this.#options.isCheck) {
+      this.#status.changedFiles.push(file)
+      return
+    }
+
+    this.#logger.log(`${file} is sorted!`)
   }
 
   reportFailed(file, error) {
@@ -56,6 +62,7 @@ class Reporter {
       failedFilesCount,
       changedFilesCount,
       wellSortedFilesCount,
+      changedFiles,
     } = this.#status
 
     if (matchedFilesCount === 0) {
@@ -79,6 +86,14 @@ class Reporter {
     }
 
     const { log } = this.#logger
+
+    if (isCheck && changedFiles.length > 0) {
+      for (const file of changedFiles.toSorted((a, b) =>
+        a.localeCompare(b, 'en'),
+      )) {
+        log(file)
+      }
+    }
 
     // Print an empty line.
     if (this.#hasPrinted) {

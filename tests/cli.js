@@ -11,6 +11,33 @@ const goodJson = {
   version: '1.0.0',
 }
 
+const scriptsBadJson = {
+  version: '1.0.0',
+  name: 'sort-package-json',
+  scripts: {
+    z: 'echo z',
+    a: 'echo a',
+  },
+}
+
+const scriptsDefaultGoodJson = {
+  name: 'sort-package-json',
+  version: '1.0.0',
+  scripts: {
+    z: 'echo z',
+    a: 'echo a',
+  },
+}
+
+const scriptsSortedGoodJson = {
+  name: 'sort-package-json',
+  version: '1.0.0',
+  scripts: {
+    a: 'echo a',
+    z: 'echo z',
+  },
+}
+
 test('cli', (t) => {
   t.notThrows(
     () => fs.accessSync(cliScript, fs.constants.X_OK),
@@ -98,6 +125,34 @@ test('run `cli` with no patterns', macro.testCLI, {
   ],
   args: [],
   message: 'Should format package.json.',
+})
+
+test(
+  'run `cli` with scripts should ignore scripts sorting by default',
+  macro.testCLI,
+  {
+    fixtures: [
+      {
+        file: 'package.json',
+        content: scriptsBadJson,
+        expect: scriptsDefaultGoodJson,
+      },
+    ],
+    args: [],
+    message: 'Should keep scripts order by default.',
+  },
+)
+
+test('run `cli --sort-scripts` with no patterns', macro.testCLI, {
+  fixtures: [
+    {
+      file: 'package.json',
+      content: scriptsBadJson,
+      expect: scriptsSortedGoodJson,
+    },
+  ],
+  args: ['--sort-scripts'],
+  message: 'Should sort scripts when --sort-scripts is provided.',
 })
 
 test('run `cli --quiet` with no patterns', macro.testCLI, {
