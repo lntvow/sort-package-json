@@ -28,7 +28,8 @@
         "types": "./index.d.ts",
         "default": "./index.cjs"
       }
-    }
+    },
+    "./package.json": "./package.json"
   },
   "types": "index.d.ts",
   "bin": "cli.js",
